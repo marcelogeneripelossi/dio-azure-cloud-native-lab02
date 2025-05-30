@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Título do Post</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="pt-5">
+<div class="container mt-5">
+    <a href="index.html" class="btn btn-secondary mb-4">Voltar</a>
+    <div id="postContent" class="mb-5">
+        <!-- Conteúdo do post será exibido aqui -->
+    </div>
+    <h3>Comentários</h3>
+    <div id="comments" class="list-group mb-4">
+        <!-- Comentários serão listados aqui -->
+    </div>
+    <form id="commentForm">
+        <div class="mb-3">
+            <label for="comment" class="form-label">Adicionar Comentário</label>
+            <textarea class="form-control" id="comment" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Enviar Comentário</button>
+    </form>
+</div>
+<script>
+    // Função para obter parâmetros da URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Funções para manipulação dos posts
+    function getPosts() {
+        const posts = localStorage.getItem('posts');
+        return posts ? JSON.parse(posts) : [];
+    }
+
+    // Funções para manipulação dos comentários
+    function getComments() {
+        const comments = localStorage.getItem('comments');
+        return comments ? JSON.parse(comments) : [];
+    }
+
+    function saveComments(comments) {
+        localStorage.setItem('comments', JSON.stringify(comments));
+    }
+
+    // Exibe o post selecionado
+    function renderPost() {
+        const postId = parseInt(getQueryParam('id'));
+        const posts = getPosts();
+        const post = posts.find(p => p.id === postId);
+        const postContainer = document.getElementById('postContent');
+        if (post) {
+            postContainer.innerHTML = `<h1>${post.title}</h1><p>${post.content}</p>`;
+        } else {
+            postContainer.innerHTML = `<p class="text-danger">Post não encontrado.</p>`;
+        }
+    }
+
+    // Exibe os comentários do post
+    function renderComments() {
+        const postId = parseInt(getQueryParam('id'));
+        const comments = getComments().filter(c => c.postId === postId);
+        const commentsContainer = document.getElementById('comments');
+        commentsContainer.innerHTML = '';
+        if (comments.length === 0) {
+            commentsContainer.innerHTML = `<p class="text-muted">Nenhum comentário ainda.</p>`;
+        } else {
+            comments.forEach(comment => {
+                const commentItem = document.createElement('div');
+                commentItem.className = 'list-group-item';
+                commentItem.textContent = comment.text;
+                commentsContainer.appendChild(commentItem);
+            });
+        }
+    }
+
+    // Adiciona um novo comentário
+    document.getElementById('commentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const postId = parseInt(getQueryParam('id'));
+        const commentText = document.getElementById('comment').value;
+        const comments = getComments();
+
+        // Cria um novo comentário com ID do post associado
+        const newComment = {
+            postId: postId,
+            text: commentText
+        };
+
+        comments.push(newComment);
+        saveComments(comments);
+
+        // Atualiza a lista de comentários
+        renderComments();
+        document.getElementById('comment').value = '';
+    });
+
+    // Renderiza o post e os comentários ao carregar a página
+    document.addEventListener('DOMContentLoaded', function () {
+        renderPost();
+        renderComments();
+    });
+</script>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
