@@ -1,0 +1,22 @@
+docker build -t landingpage/curso-ia:latest .
+
+docker run -d -p 80:80 landingpage/curso-ia:latest
+
+az login
+
+az acr login --name acrhsouzalab02
+
+docker tag landingpage/curso-ia:latest acrhsouzalab02.azurecr.io/landingpage/curso-ia:latest
+
+docker push acrhsouzalab02.azurecr.io/landingpage/curso-ia:latest
+
+Criar Deployment.yaml
+
+Criar Service.yaml
+
+az aks get-credentials --resource-group aks-dev-hsouza-lab02_group --name aks-dev-hsouza-lab02
+
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+
+kubectl get svc curso-ia-service
